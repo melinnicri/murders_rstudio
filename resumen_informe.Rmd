@@ -1,0 +1,62 @@
+---
+title: "Análisis de asesinatos en EE.UU."
+author: "Amelia Cristina Herrera Briceño"
+date: "3-4-2026"
+output: html_document
+---
+
+## Preparación de datos
+
+```{r setup, echo=TRUE, message=FALSE}
+library(tidyverse)
+
+# Cargar datos
+murders <- read_csv("data/murders.csv")
+
+# Crear variable de región y tasa
+murders <- murders %>% mutate(region = factor(region),
+                              rate = total / population * 10^5)
+
+# Guardar objeto para uso futuro
+save(murders, file = "rdas/murders.rda")
+```
+
+## Resumen de los datos
+
+```{r summary, echo=FALSE}
+head(murders)
+summary(murders)
+```
+
+## Estados con mayor tasa de asesinatos
+
+```{r top10, echo=FALSE}
+murders <- murders %>%
+  mutate(rate = total / population * 100000)
+
+murders %>%
+  arrange(desc(rate)) %>%
+  head(10)
+```
+
+## Visualización
+
+```{r plot, echo=FALSE}
+library(ggplot2)
+
+ggplot(murders, aes(x = population, y = total, color = region)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(title = "Murders vs Population by State",
+       x = "Población (escala log)",
+       y = "Total de asesinatos (escala log)")
+```
+
+## Conclusiones
+
+- La tasa de asesinatos presenta una marcada variabilidad entre los estados, destacando casos como el Distrito de Columbia con valores significativamente superiores al promedio nacional.
+
+- Se observa que los estados con menor población tienden a registrar tasas más elevadas, lo que sugiere que el tamaño poblacional influye en la magnitud relativa del fenómeno.
+
+- El uso de escalas logarítmicas en la visualización permite una comparación más equilibrada entre estados grandes y pequeños, evitando que los valores absolutos de las poblaciones más extensas dominen la interpretación.
